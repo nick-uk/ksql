@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/Mongey/ksql/ksql"
+	"github.com/nick-uk/ksql/ksql"
 )
 
 func main() {

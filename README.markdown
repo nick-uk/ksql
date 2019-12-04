@@ -4,6 +4,8 @@
 
 A barebones go client for interacting with [Confluent's KSQL][ksql]
 
+(fork from github.com/Mongey/ksql)
+
 ## Examples
 
 #### List all Streams

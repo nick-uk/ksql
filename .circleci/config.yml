@@ -1,9 +1,9 @@
 version: 2
 jobs:
   build:
-    working_directory: /go/src/github.com/Mongey/ksql
+    working_directory: /go/src/github.com/nick-uk/ksql
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12.7
       - image: confluentinc/cp-zookeeper:4.1.0
         environment:
           ZOOKEEPER_CLIENT_PORT: 2181

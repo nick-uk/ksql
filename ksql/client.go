@@ -96,7 +96,7 @@ func (c *Client) ListTables() ([]Table, error) {
 }
 
 // Do provides a way for running queries against the `/ksql` endpoint
-func (c *Client) Do(r Request) (Response, error) {
+func (c *Client) Do(r Request) ([]Response, error) {
 	res, err := c.ksqlRequest(r)
 	if err != nil {
 		return nil, err
@@ -109,13 +109,26 @@ func (c *Client) Do(r Request) (Response, error) {
 		return nil, err
 	}
 
-	resp := Response{}
-	err = json.Unmarshal(body, &resp)
-
-	if err != nil {
-		return nil, err
+	//log.Printf("\nI got %+v\n\n", string(body))
+	resp := []Response{}
+	// Any better way to detect the statement_errors ?
+	if strings.Contains(string(body), "statement_error") {
+		statementError := Response{}
+		err = json.Unmarshal(body, &statementError)
+		if err != nil {
+			return nil, err
+		}
+		resp = append(resp, statementError)
+	} else {
+		err = json.Unmarshal(body, &resp)
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	if len(resp) == 0 {
+		return nil, errors.New("Sorry I got empty response " + r.streamPropertiesName)
+	}
 	if resp[0].ErrorCode != 0 {
 		return nil, errors.New(resp[0].Message + "\n" + strings.Join(resp[0].StackTrace, "\n"))
 	}
@@ -190,8 +203,24 @@ func (c *Client) LimitQuery(r Request) ([]*QueryResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
+	respBody := resp.Body
+	body, err := ioutil.ReadAll(respBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// Any better way to detect the statement_errors ?
+	if strings.Contains(string(body), "statement_error") {
+		statementError := Response{}
+		err = json.Unmarshal(body, &statementError)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New("ERROR: " + statementError.Message)
+	}
+
 	reader := bufio.NewReader(resp.Body)
 	qrs := []*QueryResponse{}
 	for {

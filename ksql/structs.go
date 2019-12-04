@@ -19,7 +19,7 @@ type Request struct {
 	streamPropertiesName string
 }
 
-type Response []struct {
+type Response struct {
 	Type          string `json:"@type"`
 	StatementText string `json:"statementText"`
 
@@ -27,7 +27,7 @@ type Response []struct {
 	StackTrace []string `json:"stackTrace"`
 	ErrorCode  int      `json:"error_code"`
 	Message    string   `json:"message"`
-	// plus entities... list of something
+	Entities   []string `json:"entities"`
 
 	// response to various queries
 	Streams   []Stream   `json:"streams"`

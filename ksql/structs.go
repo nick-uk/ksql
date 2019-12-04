@@ -5,12 +5,18 @@ type ErrorMessage struct {
 	StackTrace []string `json:"stackTrace"`
 }
 
+// QueryResponse is a strange KSQL response, errorMessage/finalMessage could be in or out of the row and comes in different objects
 type QueryResponse struct {
 	Row *struct {
-		Columns []interface{} `json:"columns"`
+		Columns      []interface{} `json:"columns"`
+		ErrorMessage string        `json:"errorMessage"`
+		FinalMessage string        `json:"finalMessage"`
+		Terminal     bool          `json:"terminal"`
 	} `json:"row"`
-	ErrorMessage ErrorMessage `json:"errorMessage"`
-	FinalMessage ErrorMessage `json:"finalMessage"`
+	// ErrorMessage ErrorMessage `json:"errorMessage"`
+	// FinalMessage ErrorMessage `json:"finalMessage"`
+	ErrorMessage string `json:"errorMessage"`
+	FinalMessage string `json:"finalMessage"`
 }
 
 type Request struct {

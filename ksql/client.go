@@ -108,8 +108,9 @@ func (c *Client) Do(r Request) ([]Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	res.Body.Close()
+	res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-	//log.Printf("\nI got %+v\n\n", string(body))
 	resp := []Response{}
 	// Any better way to detect the statement_errors ?
 	if strings.Contains(string(body), "statement_error") {
@@ -172,6 +173,7 @@ func (c *Client) QueryContext(ctx context.Context, r Request, ch chan *QueryResp
 	}
 
 	defer resp.Body.Close()
+
 	reader := bufio.NewReader(resp.Body)
 	for {
 		q, err := readQR(reader)
@@ -210,6 +212,9 @@ func (c *Client) LimitQuery(r Request) ([]*QueryResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	resp.Body.Close()
+	//log.Println("DEBUG:", string(body))
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	// Any better way to detect the statement_errors ?
 	if strings.Contains(string(body), "statement_error") {
@@ -269,6 +274,7 @@ func readQR(rd *bufio.Reader) (*QueryResponse, error) {
 		return nil, nil
 	}
 	q := &QueryResponse{}
+
 	err = json.Unmarshal(line, q)
 	return q, err
 }
